@@ -3,7 +3,7 @@ npm-scripts(7) -- How npm handles the "scripts" field
 
 ## DESCRIPTION
 
-npm supports the "scripts" property of the package.json script, for the
+npm supports the "scripts" property of the package.json file, for the
 following scripts:
 
 * prepublish:
@@ -69,11 +69,6 @@ _new_ event, `prepublishOnly` has been added as a transitional strategy to
 allow users to avoid the confusing behavior of existing npm versions and only
 run on `npm publish` (for instance, running the tests one last time to ensure
 they're in good shape).
-
-**IMPORTANT:** As of `npm@5`, `prepublish` will _only_ be run for `npm
-publish`.  This will make its behavior identical to `prepublishOnly`, so
-`npm@6` or later may drop support for the use of `prepublishOnly`, and then
-maybe we can all forget this embarrassing thing ever happened.
 
 See <https://github.com/npm/npm/issues/10074> for a much lengthier
 justification, with further reading, for this change.

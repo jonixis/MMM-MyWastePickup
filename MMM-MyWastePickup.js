@@ -22,7 +22,7 @@ Module.register('MMM-MyWastePickup', {
   // Define required styles.
   getStyles: function () {
     return ["MMM-MyWastePickup.css"];
-  },  
+  },
 
   start: function() {
     Log.info('Starting module: ' + this.name);
@@ -67,9 +67,9 @@ Module.register('MMM-MyWastePickup', {
     var use = document.createElementNS('http://www.w3.org/2000/svg', "use");
     use.setAttributeNS("http://www.w3.org/1999/xlink", "href", this.file("icon_sprite.svg#") + glyph);
     svg.appendChild(use);
-    
+
     return(svg);
-  },   
+  },
 
   getDom: function() {
     var wrapper = document.createElement("div");
@@ -111,7 +111,7 @@ Module.register('MMM-MyWastePickup', {
 
       pickupContainer.appendChild(dateContainer);
 
-      //add icons 
+      //add icons
       var iconContainer = document.createElement("span");
       iconContainer.classList.add("waste-pickup-icon-container");
 
@@ -124,8 +124,8 @@ Module.register('MMM-MyWastePickup', {
       if (pickup.Recycling) {
         iconContainer.appendChild(this.svgIconFactory("recycle"));
       }
-      if (pickup.YardWaste) {
-        iconContainer.appendChild(this.svgIconFactory("yard_waste"));
+      if (pickup.MrGreen) {
+        iconContainer.appendChild(this.svgIconFactory("mr_green"));
       }
       if (pickup.ChristmasTree) {
         iconContainer.appendChild(this.svgIconFactory("christmas_tree"));

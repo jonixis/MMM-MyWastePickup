@@ -135,7 +135,9 @@ function exit (code, noLog) {
     // for whatever reason gets thrown away, instead of leaving the CLI open
     //
     // Commands that expect long-running actions should just delay `cb()`
-    process.exit(code)
+    process.stdout.write('', () => {
+      process.exit(code)
+    })
   }
 }
 
@@ -168,20 +170,12 @@ function errorHandler (er) {
 
   ;[
     'type',
-    'fstream_path',
-    'fstream_unc_path',
-    'fstream_type',
-    'fstream_class',
-    'fstream_finish_call',
-    'fstream_linkpath',
     'stack',
-    'fstream_stack',
     'statusCode',
     'pkgid'
   ].forEach(function (k) {
     var v = er[k]
     if (!v) return
-    if (k === 'fstream_stack') v = v.join('\n')
     log.verbose(k, v)
   })
 

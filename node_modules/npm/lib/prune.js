@@ -11,7 +11,7 @@ var util = require('util')
 var moduleName = require('./utils/module-name.js')
 var Installer = require('./install.js').Installer
 var isExtraneous = require('./install/is-extraneous.js')
-var isDev = require('./install/is-dev-dep.js')
+var isOnlyDev = require('./install/is-only-dev.js')
 var removeDeps = require('./install/deps.js').removeDeps
 var loadExtraneous = require('./install/deps.js').loadExtraneous
 var chain = require('slide').chain
@@ -26,7 +26,7 @@ function prune (args, cb) {
 
 function Pruner (where, dryrun, args) {
   Installer.call(this, where, dryrun, args)
-  this.fakeChildren = false
+  this.autoPrune = true
 }
 util.inherits(Pruner, Installer)
 
@@ -42,9 +42,7 @@ Pruner.prototype.loadAllDepsIntoIdealTree = function (cb) {
   function shouldPrune (child) {
     if (isExtraneous(child)) return true
     if (!excludeDev) return false
-    var childName = moduleName(child)
-    var isChildDev = function (parent) { return isDev(parent, childName) }
-    if (child.requiredBy.every(isChildDev)) return true
+    return isOnlyDev(child)
   }
   function getModuleName (child) {
     // wrapping because moduleName doesn't like extra args and we're called
@@ -67,3 +65,4 @@ Pruner.prototype.loadAllDepsIntoIdealTree = function (cb) {
 
 Pruner.prototype.runPreinstallTopLevelLifecycles = function (cb) { cb() }
 Pruner.prototype.runPostinstallTopLevelLifecycles = function (cb) { cb() }
+Pruner.prototype.saveToDependencies = function (cb) { cb() }
