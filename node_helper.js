@@ -62,7 +62,7 @@ module.exports = NodeHelper.create({
       obj.GreenBin = (obj.GreenBin == "0" ? false : true);
       obj.Garbage = (obj.Garbage == "0" ? false : true);
       obj.Recycling = (obj.Recycling == "0" ? false : true);
-      obj.YardWaste = (obj.YardWaste == "0" ? false : true);
+      obj.MrGreen = (obj.MrGreen == "0" ? false : true);
       obj.ChristmasTree = (obj.ChristmasTree == "0" ? false : true);
     });
 
@@ -75,7 +75,7 @@ module.exports = NodeHelper.create({
     //find info for next pickup dates
     var nextPickups = this.schedule.filter(function (obj) {
       return obj.Calendar == payload.collectionCalendar &&
-        obj.pickupDate.isSameOrAfter(start) && 
+        obj.pickupDate.isSameOrAfter(start) &&
         obj.pickupDate.isBefore(end);
     });
 
