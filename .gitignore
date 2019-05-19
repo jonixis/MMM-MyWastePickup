@@ -1,2 +1,3 @@
 node_modules
-schedule_custom.csv
+.DS_Store
+.tern-port
