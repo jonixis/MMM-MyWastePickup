@@ -1,11 +1,10 @@
 var NodeHelper = require("node_helper");
-var fs = require('fs');
+var fs = require("fs");
 var parse = require("csv-parse");
 var moment = require("moment");
-
+var osmosis = require("osmosis");
 
 module.exports = NodeHelper.create({
-
   start: function() {
     console.log("Starting node_helper for module: " + this.name);
 
@@ -16,11 +15,9 @@ module.exports = NodeHelper.create({
     this.scheduleCSVFile = this.path + "/schedule.csv";
 
     this.scheduleCustomCSVFile = this.path + "/schedule_custom.csv";
-
   },
 
   socketNotificationReceived: function(notification, payload) {
-
     var self = this;
 
     if (this.schedule == null) {
@@ -33,7 +30,10 @@ module.exports = NodeHelper.create({
 
       fs.readFile(scheduleFile, "utf8", function(err, rawData) {
         if (err) throw err;
-        parse(rawData, {delimiter: ",", columns: true, ltrim: true}, function(err, parsedData) {
+        parse(rawData, { delimiter: ",", columns: true, ltrim: true }, function(
+          err,
+          parsedData
+        ) {
           if (err) throw err;
 
           self.schedule = parsedData;
@@ -44,13 +44,10 @@ module.exports = NodeHelper.create({
     } else {
       this.getNextPickups(payload);
     }
-
   },
 
   postProcessSchedule: function() {
-
-    this.schedule.forEach( function(obj) {
-
+    this.schedule.forEach(function(obj) {
       //convert date strings to moment.js Date objects
       obj.pickupDate = moment(obj.WeekStarting, "MM/DD/YY");
 
@@ -59,28 +56,59 @@ module.exports = NodeHelper.create({
       // If so, move to next day
 
       //reassign strings to booleans for particular waste type
-      obj.GreenBin = (obj.GreenBin == "0" ? false : true);
-      obj.Garbage = (obj.Garbage == "0" ? false : true);
-      obj.Recycling = (obj.Recycling == "0" ? false : true);
-      obj.MrGreen = (obj.MrGreen == "0" ? false : true);
-      obj.ChristmasTree = (obj.ChristmasTree == "0" ? false : true);
+      obj.GreenBin = obj.GreenBin == "0" ? false : true;
+      obj.Garbage = obj.Garbage == "0" ? false : true;
+      obj.Recycling = obj.Recycling == "0" ? false : true;
+      obj.MrGreen = obj.MrGreen == "0" ? false : true;
+      obj.ChristmasTree = obj.ChristmasTree == "0" ? false : true;
     });
-
   },
 
   getNextPickups: function(payload) {
     var start = moment().startOf("day"); //today, 12:00 AM
-    var end = moment().startOf("day").add(payload.weeksToDisplay * 7, "days");
+    var end = moment()
+      .startOf("day")
+      .add(payload.weeksToDisplay * 7, "days");
 
     //find info for next pickup dates
-    var nextPickups = this.schedule.filter(function (obj) {
-      return obj.Calendar == payload.collectionCalendar &&
+    var nextPickups = this.schedule.filter(function(obj) {
+      return (
+        obj.Calendar == payload.collectionCalendar &&
         obj.pickupDate.isSameOrAfter(start) &&
-        obj.pickupDate.isBefore(end);
+        obj.pickupDate.isBefore(end)
+      );
     });
 
-    this.sendSocketNotification('MMM-MYWASTEPICKUP-RESPONSE' + payload.instanceId, nextPickups);
+    // Load pick up dates from mr green website
+    this.getNextMrGreenPickups().then(res => {
+      console.log(res);
+    });
 
+    this.sendSocketNotification(
+      "MMM-MYWASTEPICKUP-RESPONSE" + payload.instanceId,
+      nextPickups
+    );
+  },
+
+  getNextMrGreenPickups: function() {
+    return new Promise((resolve, reject) => {
+      // https://mr-green.ch/was-wo-wann-und-wie/?fwp_abholkalender=3156
+
+      let mrGreenPickupDates = [];
+
+      osmosis
+        .get("https://mr-green.ch/was-wo-wann-und-wie/?fwp_abholkalender=3156")
+        .find(".col-wrapper")
+        .set({
+          day: "span.day",
+          month: "span.month",
+          year: "span.year"
+        })
+        .data(data => {
+          mrGreenPickupDates.push(data);
+        })
+        .error(err => reject(err))
+        .done(() => resolve(mrGreenPickupDates));
+    });
   }
-
 });
