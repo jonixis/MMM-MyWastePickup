@@ -1,4 +1,4 @@
-Calendar,WeekStarting,GreenBin,Garbage,Recycling,MrGreen,ChristmasTree
+Calendar,PickupDate,GreenBin,Garbage,Recycling,MrGreen,ChristmasTree
 Custom,03/28/18,1,1,1,0,0
 Custom,04/04/18,1,1,0,0,0
 Custom,04/11/18,1,1,1,0,0
@@ -57,13 +57,13 @@ Custom,04/10/19,1,1,1,0,0
 Custom,04/17/19,1,1,0,0,0
 Custom,04/24/19,1,1,1,0,0
 Custom,05/02/19,1,1,0,0,0
-Custom,05/08/19,1,1,1,1,0
+Custom,05/08/19,1,1,1,0,0
 Custom,05/15/19,1,1,0,0,0
-Custom,05/22/19,1,1,1,1,0
+Custom,05/22/19,1,1,1,0,0
 Custom,05/29/19,1,1,0,0,0
-Custom,06/05/19,1,1,1,1,0
+Custom,06/05/19,1,1,1,0,0
 Custom,06/12/19,1,1,0,0,0
-Custom,06/19/19,1,1,1,1,0
+Custom,06/19/19,1,1,1,0,0
 Custom,06/26/19,1,1,0,0,0
 Custom,07/03/19,1,1,1,0,0
 Custom,07/10/19,1,1,0,0,0

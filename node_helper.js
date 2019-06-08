@@ -5,6 +5,22 @@ var moment = require("moment");
 var osmosis = require("osmosis");
 
 module.exports = NodeHelper.create({
+
+  germanMonths: new Map([
+    ["Januar", "01"],
+    ["Februar", "02"],
+    ["März", "03"],
+    ["April", "04"],
+    ["Mai", "05"],
+    ["Juni", "06"],
+    ["Juli", "07"],
+    ["August", "08"],
+    ["September", "09"],
+    ["Oktober", "10"],
+    ["November", "11"],
+    ["Dezember", "12"],
+  ]),
+
   start: function() {
     console.log("Starting node_helper for module: " + this.name);
 
@@ -49,7 +65,7 @@ module.exports = NodeHelper.create({
   postProcessSchedule: function() {
     this.schedule.forEach(function(obj) {
       //convert date strings to moment.js Date objects
-      obj.pickupDate = moment(obj.WeekStarting, "MM/DD/YY");
+      obj.PickupDate = moment(obj.PickupDate, "MM/DD/YY");
 
       // to do:
       // check if pickup date lands on a holiday.
@@ -74,23 +90,52 @@ module.exports = NodeHelper.create({
     var nextPickups = this.schedule.filter(function(obj) {
       return (
         obj.Calendar == payload.collectionCalendar &&
-        obj.pickupDate.isSameOrAfter(start) &&
-        obj.pickupDate.isBefore(end)
+        obj.PickupDate.isSameOrAfter(start) &&
+        obj.PickupDate.isBefore(end)
       );
     });
 
     // Load pick up dates from mr green website
-    this.getNextMrGreenPickups().then(res => {
-      console.log(res);
-    });
+    this.fetchNextMrGreenPickups().then(res => {
+      // Remove redundant dates
+      res.splice(payload.weeksToDisplay, res.length);
 
-    this.sendSocketNotification(
-      "MMM-MYWASTEPICKUP-RESPONSE" + payload.instanceId,
-      nextPickups
-    );
+      // Add mr green pickups to nextPickups
+      res.forEach((mrGreenDate) => {
+        let dateString = [mrGreenDate.month, mrGreenDate.day, mrGreenDate.year]
+            .join("/");
+        let date = moment(dateString, "MM/DD/YY");
+        let isNewDateNeeded = true;
+        nextPickups.forEach((nextPickup) => {
+          if (nextPickup.PickupDate.isSame(date)) {
+            nextPickup.MrGreen = true;
+            isNewDateNeeded = false;
+          }
+        });
+        if (isNewDateNeeded
+            && date.isBefore(nextPickups[nextPickups.length-1])) {
+          let newPickup = {
+            Calender: 'Custom',
+            PickupDate: date,
+            GreenBin: false,
+            Garbage: false,
+            Recycling: false,
+            MrGreen: true,
+            ChristmasTree: false
+          };
+          nextPickups.push(newPickup);
+        }
+      });
+
+      // Send socket notification to frontend
+      this.sendSocketNotification(
+        "MMM-MYWASTEPICKUP-RESPONSE" + payload.instanceId,
+        nextPickups
+      );
+    });
   },
 
-  getNextMrGreenPickups: function() {
+  fetchNextMrGreenPickups: function() {
     return new Promise((resolve, reject) => {
       // https://mr-green.ch/was-wo-wann-und-wie/?fwp_abholkalender=3156
 
@@ -105,6 +150,8 @@ module.exports = NodeHelper.create({
           year: "span.year"
         })
         .data(data => {
+          data.month = this.germanMonths.get(data.month);
+          data.year = data.year.substring(2);
           mrGreenPickupDates.push(data);
         })
         .error(err => reject(err))

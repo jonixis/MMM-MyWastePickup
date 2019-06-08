@@ -107,7 +107,7 @@ Module.register("MMM-MyWastePickup", {
 
       //determine how close pickup day is and formats accordingly.
       var today = moment().startOf("day");
-      var pickUpDate = moment(pickup.pickupDate);
+      var pickUpDate = moment(pickup.PickupDate);
       if (today.isSame(pickUpDate)) {
         dateContainer.innerHTML = this.translate("TODAY");
       } else if (
