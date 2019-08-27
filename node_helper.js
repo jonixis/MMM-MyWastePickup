@@ -96,7 +96,7 @@ module.exports = NodeHelper.create({
     });
 
     // Load pick up dates from mr green website
-    this.fetchNextMrGreenPickups().then(res => {
+    this.fetchNextMrGreenPickups(payload.mrGreenCalendarUrl).then(res => {
       // Remove redundant dates
       res.splice(payload.weeksToDisplay, res.length);
 
@@ -129,20 +129,18 @@ module.exports = NodeHelper.create({
 
       // Send socket notification to frontend
       this.sendSocketNotification(
-        "MMM-MYWASTEPICKUP-RESPONSE" + payload.instanceId,
+        "MMM-MYWASTEPICKUP-RESPONSE" + payload.identifier,
         nextPickups
       );
     });
   },
 
-  fetchNextMrGreenPickups: function() {
+  fetchNextMrGreenPickups: function(mrGreenCalendarUrl) {
     return new Promise((resolve, reject) => {
-      // https://mr-green.ch/was-wo-wann-und-wie/?fwp_abholkalender=3156
-
       let mrGreenPickupDates = [];
 
       osmosis
-        .get("https://mr-green.ch/was-wo-wann-und-wie/?fwp_abholkalender=3156")
+        .get(mrGreenCalendarUrl)
         .find(".col-wrapper")
         .set({
           day: "span.day",

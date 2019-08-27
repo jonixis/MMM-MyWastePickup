@@ -2,7 +2,8 @@ Module.register("MMM-MyWastePickup", {
   defaults: {
     collectionCalendar: "Tuesday1",
     weeksToDisplay: 2,
-    limitTo: 99
+    limitTo: 99,
+    mrGreenCalendarUrl: "https://mr-green.ch/was-wo-wann-und-wie/?fwp_abholkalender=3156"
   },
 
   validCollectionCalendars: [
@@ -45,9 +46,8 @@ Module.register("MMM-MyWastePickup", {
     this.timer = null;
 
     this.sendSocketNotification("MMM-MYWASTEPICKUP-GET", {
-      collectionCalendar: this.config.collectionCalendar,
-      weeksToDisplay: this.config.weeksToDisplay,
-      instanceId: this.identifier
+      ...this.config,
+      identifier: this.identifier
     });
 
     //set alarm to check again tomorrow
