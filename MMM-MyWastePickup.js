@@ -81,6 +81,23 @@ Module.register("MMM-MyWastePickup", {
     return svg;
   },
 
+  createIconLegendEntry: function(description, iconName) {
+    var legendContainer = document.createElement("div");
+    legendContainer.classList.add("legend-container");
+
+    var iconContainer = document.createElement("span");
+    iconContainer.classList.add("waste-pickup-icon-legend-container");
+    iconContainer.appendChild(this.svgIconFactory(iconName));
+    legendContainer.appendChild(iconContainer);
+
+    var descriptionContainer = document.createElement("span");
+    descriptionContainer.classList.add("pickup-date");
+    descriptionContainer.innerHTML = description;
+    legendContainer.appendChild(descriptionContainer);
+
+    return legendContainer;
+  },
+
   getDom: function() {
     var wrapper = document.createElement("div");
 
@@ -90,7 +107,6 @@ Module.register("MMM-MyWastePickup", {
       return wrapper;
     }
 
-    // this.nextPickups.forEach( function(pickup) {
     for (i = 0; i < this.nextPickups.length; i++) {
       if (i == this.config.limitTo) {
         break;
@@ -152,6 +168,13 @@ Module.register("MMM-MyWastePickup", {
 
       wrapper.appendChild(pickupContainer);
     }
+
+    // Create icon legend
+    wrapper.appendChild(document.createElement("br"));
+    wrapper.appendChild(this.createIconLegendEntry("Kehricht", "garbage"));
+    wrapper.appendChild(this.createIconLegendEntry("Grüntour", "compost"));
+    wrapper.appendChild(this.createIconLegendEntry("Papier/Karton", "recycle"));
+    wrapper.appendChild(this.createIconLegendEntry("Mr. Green", "mr_green"));
 
     return wrapper;
   }
