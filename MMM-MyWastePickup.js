@@ -107,6 +107,9 @@ Module.register("MMM-MyWastePickup", {
       return wrapper;
     }
 
+    var pickupWrapper = document.createElement("div");
+    pickupWrapper.classList.add("pickup-wrapper");
+
     for (i = 0; i < this.nextPickups.length; i++) {
       if (i == this.config.limitTo) {
         break;
@@ -166,15 +169,26 @@ Module.register("MMM-MyWastePickup", {
 
       pickupContainer.appendChild(iconContainer);
 
-      wrapper.appendChild(pickupContainer);
+      pickupWrapper.appendChild(pickupContainer);
     }
 
-    // Create icon legend
-    wrapper.appendChild(document.createElement("br"));
-    wrapper.appendChild(this.createIconLegendEntry("Kehricht", "garbage"));
-    wrapper.appendChild(this.createIconLegendEntry("Grüntour", "compost"));
-    wrapper.appendChild(this.createIconLegendEntry("Papier/Karton", "recycle"));
-    wrapper.appendChild(this.createIconLegendEntry("Mr. Green", "mr_green"));
+    wrapper.appendChild(pickupWrapper);
+
+    // Create icon descriptions
+    var legendWrapperUpper = document.createElement("div");
+    legendWrapperUpper.classList.add("legend-wrapper");
+    legendWrapperUpper.classList.add("light");
+    legendWrapperUpper.appendChild(this.createIconLegendEntry("Kehricht", "garbage"));
+    legendWrapperUpper.appendChild(this.createIconLegendEntry("Grüntour", "compost"));
+
+    var legendWrapperLower = document.createElement("div");
+    legendWrapperLower.classList.add("legend-wrapper");
+    legendWrapperLower.classList.add("light");
+    legendWrapperLower.appendChild(this.createIconLegendEntry("Papier/Karton", "recycle"));
+    legendWrapperLower.appendChild(this.createIconLegendEntry("Mr. Green", "mr_green"));
+
+    wrapper.appendChild(legendWrapperUpper);
+    wrapper.appendChild(legendWrapperLower);
 
     return wrapper;
   }

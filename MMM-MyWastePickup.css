@@ -6,20 +6,29 @@
   border-bottom: solid 1px #222;
   position: relative;
   text-align: left;
-  width: 200px;
+  width: 240px;
 }
 
 .MMM-MyWastePickup .legend-container {
-  line-height: 3;
   font-size: 15px;
   margin: 0;
   padding: 0;
   position: relative;
+  text-align: right;
   width: 120px;
+  float: left;
+  height: 30px;
 }
 
 .MMM-MyWastePickup .pickup-date {
   color: #FFF;
+}
+
+.MMM-MyWastePickup .pickup-wrapper {
+}
+
+.MMM-MyWastePickup .legend-wrapper {
+  opacity: 0.6;
 }
 
 .MMM-MyWastePickup .waste-pickup-icon-container {
@@ -32,8 +41,9 @@
 
 .MMM-MyWastePickup .waste-pickup-icon-legend-container {
   white-space: nowrap;
-  position: absolute;
-  left: 0px;
+  position: relative;
+  float: right;
+  right: 0px;
   top: 10px;
   line-height: 24px;
 }
