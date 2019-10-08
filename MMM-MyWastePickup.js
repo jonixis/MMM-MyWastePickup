@@ -116,6 +116,8 @@ Module.register("MMM-MyWastePickup", {
       }
 
       var pickup = this.nextPickups[i];
+      // Send notifications
+      this.sendReminder(pickup);
 
       var pickupContainer = document.createElement("div");
       pickupContainer.classList.add("pickup-container");
@@ -191,5 +193,11 @@ Module.register("MMM-MyWastePickup", {
     wrapper.appendChild(legendWrapperLower);
 
     return wrapper;
+  },
+
+  sendReminder: function(pickup) {
+    let date = moment(pickup.PickupDate).format("MMMM D");
+    date = "Next pickup: " + date;
+    this.sendNotification('TELBOT_TELL_ADMIN', date);
   }
 });
