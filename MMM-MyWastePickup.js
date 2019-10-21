@@ -64,6 +64,7 @@ Module.register("MMM-MyWastePickup", {
     ) {
       this.nextPickups = payload;
       this.updateDom(1000);
+      this.handleTelegramNotifications(this.nextPickups);
     }
   },
 
@@ -116,8 +117,6 @@ Module.register("MMM-MyWastePickup", {
       }
 
       var pickup = this.nextPickups[i];
-      // Send notifications
-      this.sendReminder(pickup);
 
       var pickupContainer = document.createElement("div");
       pickupContainer.classList.add("pickup-container");
@@ -195,9 +194,41 @@ Module.register("MMM-MyWastePickup", {
     return wrapper;
   },
 
-  sendReminder: function(pickup) {
-    let date = moment(pickup.PickupDate).format("MMMM D");
-    date = "Next pickup: " + date;
-    this.sendNotification('TELBOT_TELL_ADMIN', date);
+  handleTelegramNotifications: function(pickups) {
+    const today = moment().startOf('day');
+
+    pickups.forEach(pickup => {
+      const currentHour = moment().hour();
+      // check if it is 18:00 o'clock one day before a pickup
+      if (moment(today).hour(currentHour).isSame(moment(pickup.PickupDate).subtract(1, 'days').hour(20), 'hour')) {
+        this.sendTelegramMessage('*Morn:*', pickup);
+      }
+      // check if pickup is today
+      else if (moment(today).hour(currentHour).isSame(moment(pickup.PickupDate).hour(7), 'hour')) {
+        this.sendTelegramMessage('‼️*Hüt:*‼️', pickup);
+      }
+    });
+
+  },
+
+  sendTelegramMessage: function(customText, pickup) {
+    let message = '♻️🚮 WG-Abfall Reminder 🚮♻️\n\n';
+
+    message += customText + '\n';
+
+    if (pickup.Garbage) {
+      message += '- `Kehricht`\n';
+    }
+    if (pickup.GreenBin) {
+      message += '- `Kompost`\n';
+    }
+    if (pickup.Recycling) {
+      message += '- `Papier/Karton`\n';
+    }
+    if (pickup.MrGreen) {
+      message += '- `Mr. Green`\n';
+    }
+
+    this.sendNotification('TELBOT_TELL_ADMIN', message);
   }
 });
