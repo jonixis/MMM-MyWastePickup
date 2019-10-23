@@ -19,6 +19,13 @@ Module.register("MMM-MyWastePickup", {
     "Custom"
   ],
 
+  germanLabels: {
+    garbage: "Kehricht",
+    compost: "Grüntour",
+    recycle: "Papier/Karton",
+    mr_green: "Mr. Green"
+  },
+
   // Define required styles.
   getStyles: function() {
     return ["MMM-MyWastePickup.css"];
@@ -179,14 +186,14 @@ Module.register("MMM-MyWastePickup", {
     var legendWrapperUpper = document.createElement("div");
     legendWrapperUpper.classList.add("legend-wrapper");
     legendWrapperUpper.classList.add("light");
-    legendWrapperUpper.appendChild(this.createIconLegendEntry("Kehricht", "garbage"));
-    legendWrapperUpper.appendChild(this.createIconLegendEntry("Grüntour", "compost"));
+    legendWrapperUpper.appendChild(this.createIconLegendEntry(this.germanLabels.garbage, "garbage"));
+    legendWrapperUpper.appendChild(this.createIconLegendEntry(this.germanLabels.compost, "compost"));
 
     var legendWrapperLower = document.createElement("div");
     legendWrapperLower.classList.add("legend-wrapper");
     legendWrapperLower.classList.add("light");
-    legendWrapperLower.appendChild(this.createIconLegendEntry("Papier/Karton", "recycle"));
-    legendWrapperLower.appendChild(this.createIconLegendEntry("Mr. Green", "mr_green"));
+    legendWrapperLower.appendChild(this.createIconLegendEntry(this.germanLabels.recycle, "recycle"));
+    legendWrapperLower.appendChild(this.createIconLegendEntry(this.germanLabels.mr_green, "mr_green"));
 
     wrapper.appendChild(legendWrapperUpper);
     wrapper.appendChild(legendWrapperLower);
@@ -217,16 +224,16 @@ Module.register("MMM-MyWastePickup", {
     message += customText + '\n';
 
     if (pickup.Garbage) {
-      message += '- `Kehricht`\n';
+      message += '- `' + this.germanLabels.garbage + '`\n';
     }
     if (pickup.GreenBin) {
-      message += '- `Kompost`\n';
+      message += '- `' + this.germanLabels.compost + '`\n';
     }
     if (pickup.Recycling) {
-      message += '- `Papier/Karton`\n';
+      message += '- `' + this.germanLabels.recycle + '`\n';
     }
     if (pickup.MrGreen) {
-      message += '- `Mr. Green`\n';
+      message += '- `' + this.germanLabels.mr_green + '`\n';
     }
 
     this.sendNotification('TELBOT_TELL_ADMIN', message);
