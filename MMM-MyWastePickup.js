@@ -206,12 +206,12 @@ Module.register("MMM-MyWastePickup", {
 
     pickups.forEach(pickup => {
       const currentHour = moment().hour();
-      // check if it is 18:00 o'clock one day before a pickup
+      // check if it is one day before a pickup
       if (moment(today).hour(currentHour).isSame(moment(pickup.PickupDate).subtract(1, 'days').hour(20), 'hour')) {
         this.sendTelegramMessage('*Morn:*', pickup);
       }
       // check if pickup is today
-      else if (moment(today).hour(currentHour).isSame(moment(pickup.PickupDate).hour(7), 'hour')) {
+      else if (moment(today).hour(currentHour).isSame(moment(pickup.PickupDate).hour(4), 'hour')) {
         this.sendTelegramMessage('‼️*Hüt:*‼️', pickup);
       }
     });

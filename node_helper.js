@@ -106,6 +106,7 @@ module.exports = NodeHelper.create({
             .join("/");
         let date = moment(dateString, "MM/DD/YY");
         let isNewDateNeeded = true;
+        // TODO: Fix case when mr green website still has date from 1 day before on website --> Shows single pickup cell for mr green
         nextPickups.forEach((nextPickup) => {
           if (nextPickup.PickupDate.isSame(date)) {
             nextPickup.MrGreen = true;
