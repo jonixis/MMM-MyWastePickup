@@ -236,6 +236,6 @@ Module.register("MMM-MyWastePickup", {
       message += '- `' + this.germanLabels.mr_green + '`\n';
     }
 
-    this.sendNotification('TELBOT_TELL_ADMIN', message);
+    this.sendNotification('TELBOT_TELL_GROUP', message);
   }
 });
