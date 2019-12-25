@@ -2,8 +2,7 @@ Module.register("MMM-MyWastePickup", {
   defaults: {
     collectionCalendar: "Tuesday1",
     weeksToDisplay: 2,
-    limitTo: 99,
-    mrGreenCalendarUrl: "https://mr-green.ch/was-wo-wann-und-wie/?fwp_abholkalender=3156"
+    limitTo: 99
   },
 
   validCollectionCalendars: [
@@ -36,13 +35,6 @@ Module.register("MMM-MyWastePickup", {
 
     this.nextPickups = [];
 
-    if (
-      this.validCollectionCalendars.indexOf(this.config.collectionCalendar) ==
-      -1
-    ) {
-      this.config.collectionCalendar = "Tuesday1";
-    }
-
     this.getPickups();
 
     this.timer = null;
@@ -61,7 +53,7 @@ Module.register("MMM-MyWastePickup", {
     var self = this;
     this.timer = setTimeout(function() {
       self.getPickups();
-    }, 60 * 60 * 1000); //update once an hour
+    }, 24 * 60 * 60 * 1000); // udpate once a day
   },
 
   socketNotificationReceived: function(notification, payload) {
@@ -170,9 +162,6 @@ Module.register("MMM-MyWastePickup", {
       }
       if (pickup.MrGreen) {
         iconContainer.appendChild(this.svgIconFactory("mr_green"));
-      }
-      if (pickup.ChristmasTree) {
-        iconContainer.appendChild(this.svgIconFactory("christmas_tree"));
       }
 
       pickupContainer.appendChild(iconContainer);
