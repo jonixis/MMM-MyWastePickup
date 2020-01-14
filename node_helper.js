@@ -22,7 +22,6 @@ module.exports = NodeHelper.create({
 
   start: function() {
     console.log("Starting node_helper for module: " + this.name);
-
   },
 
   socketNotificationReceived: function(notification, payload) {
@@ -30,20 +29,20 @@ module.exports = NodeHelper.create({
     this.getNextPickups(payload);
   },
 
-  cleanUpNextPickups: function(nextPickups) {
+  cleanUpNextPickups: function(nextPickups) {
     let end = moment()
-        .startOf("day")
-        .add(this.config.weeksToDisplay * 7, "days");
+      .startOf("day")
+      .add(this.config.weeksToDisplay * 7, "days");
 
     return nextPickups
       .sort((a, b) => a.PickupDate.diff(b.PickupDate))
       .filter(pickup => {
         return pickup.PickupDate.isBefore(end, "day");
-    });
+      });
   },
 
+  // TODO: Refactor duplicate code
   getNextPickups: function(payload) {
-
     // Load next pickups from city website
     let nextPickups = [];
 
@@ -51,7 +50,6 @@ module.exports = NodeHelper.create({
       // Remove redundant dates
       res.splice(payload.weeksToDisplay, res.length);
 
-      // Add mr green pickups to nextPickups
       res.forEach(garbageDate => {
         let dateString = [
           garbageDate.month,
@@ -70,130 +68,111 @@ module.exports = NodeHelper.create({
         };
 
         nextPickups = this.addNewPickup(newPickup, nextPickups);
-
       });
 
-      // Send socket notification to frontend
-      this.sendSocketNotification(
-        "MMM-MYWASTEPICKUP-RESPONSE" + payload.identifier,
-        nextPickups
-      );
+      this.fetchWinterthurWastePickups(payload.wintiCityGruentourUrl).then(
+        res => {
+          // Remove redundant dates
+          res.splice(payload.weeksToDisplay, res.length);
 
-    });
+          res.forEach(greenBinDate => {
+            let dateString = [
+              greenBinDate.month,
+              greenBinDate.day,
+              greenBinDate.year
+            ].join("/");
+            let date = moment(dateString, "MM/DD/YY");
 
+            let newPickup = {
+              Calender: "Custom",
+              PickupDate: date,
+              GreenBin: true,
+              Garbage: false,
+              Recycling: false,
+              MrGreen: false
+            };
 
-    this.fetchWinterthurWastePickups(payload.wintiCityGruentourUrl).then(res => {
-      // Remove redundant dates
-      res.splice(payload.weeksToDisplay, res.length);
+            nextPickups = this.addNewPickup(newPickup, nextPickups);
+          });
 
-      // Add mr green pickups to nextPickups
-      res.forEach(greenBinDate => {
-        let dateString = [
-          greenBinDate.month,
-          greenBinDate.day,
-          greenBinDate.year
-        ].join("/");
-        let date = moment(dateString, "MM/DD/YY");
+          this.fetchWinterthurWastePickups(payload.wintiCityRecyclingUrl).then(
+            res => {
+              // Remove redundant dates
+              res.splice(payload.weeksToDisplay, res.length);
 
-        let newPickup = {
-          Calender: "Custom",
-          PickupDate: date,
-          GreenBin: true,
-          Garbage: false,
-          Recycling: false,
-          MrGreen: false
-        };
+              res.forEach(recyclingDate => {
+                let dateString = [
+                  recyclingDate.month,
+                  recyclingDate.day,
+                  recyclingDate.year
+                ].join("/");
+                let date = moment(dateString, "MM/DD/YY");
 
-        nextPickups = this.addNewPickup(newPickup, nextPickups);
+                let newPickup = {
+                  Calender: "Custom",
+                  PickupDate: date,
+                  GreenBin: false,
+                  Garbage: false,
+                  Recycling: true,
+                  MrGreen: false
+                };
 
-      });
+                nextPickups = this.addNewPickup(newPickup, nextPickups);
+              });
 
-      // Send socket notification to frontend
-      this.sendSocketNotification(
-        "MMM-MYWASTEPICKUP-RESPONSE" + payload.identifier,
-        nextPickups
-      );
+              // Load pick up dates from mr green website
+              this.fetchNextMrGreenPickups(payload.mrGreenCalendarUrl).then(
+                res => {
+                  // Remove days in past
+                  res = res.filter(mrGreenDate => {
+                    let dateString = [
+                      mrGreenDate.month,
+                      mrGreenDate.day,
+                      mrGreenDate.year
+                    ].join("/");
+                    let date = moment(dateString, "MM/DD/YY");
 
-    });
+                    return date.isAfter(
+                      moment()
+                        .startOf("day")
+                        .add(1, "days"),
+                      "day"
+                    );
+                  });
 
+                  // Remove redundant dates
+                  res.splice(payload.weeksToDisplay, res.length);
 
-    this.fetchWinterthurWastePickups(payload.wintiCityRecyclingUrl).then(res => {
-      // Remove redundant dates
-      res.splice(payload.weeksToDisplay, res.length);
+                  res.forEach(mrGreenDate => {
+                    let dateString = [
+                      mrGreenDate.month,
+                      mrGreenDate.day,
+                      mrGreenDate.year
+                    ].join("/");
+                    let date = moment(dateString, "MM/DD/YY");
 
-      // Add mr green pickups to nextPickups
-      res.forEach(recyclingDate => {
-        let dateString = [
-          recyclingDate.month,
-          recyclingDate.day,
-          recyclingDate.year
-        ].join("/");
-        let date = moment(dateString, "MM/DD/YY");
+                    let newPickup = {
+                      Calender: "Custom",
+                      PickupDate: date,
+                      GreenBin: false,
+                      Garbage: false,
+                      Recycling: false,
+                      MrGreen: true
+                    };
 
-        let newPickup = {
-          Calender: "Custom",
-          PickupDate: date,
-          GreenBin: false,
-          Garbage: false,
-          Recycling: true,
-          MrGreen: false
-        };
+                    nextPickups = this.addNewPickup(newPickup, nextPickups);
+                  });
 
-        nextPickups = this.addNewPickup(newPickup, nextPickups);
-
-      });
-
-      // Send socket notification to frontend
-      this.sendSocketNotification(
-        "MMM-MYWASTEPICKUP-RESPONSE" + payload.identifier,
-        nextPickups
-      );
-
-    });
-
-    // Load pick up dates from mr green website
-    this.fetchNextMrGreenPickups(payload.mrGreenCalendarUrl).then(res => {
-      // Remove days in past
-      res = res.filter(mrGreenDate => {
-        let dateString = [
-          mrGreenDate.month,
-          mrGreenDate.day,
-          mrGreenDate.year
-        ].join("/");
-        let date = moment(dateString, "MM/DD/YY");
-
-        return date.isAfter(moment().startOf("day").add(1, "days"), "day");
-      });
-
-      // Remove redundant dates
-      res.splice(payload.weeksToDisplay, res.length);
-
-      // Add mr green pickups to nextPickups
-      res.forEach(mrGreenDate => {
-        let dateString = [
-          mrGreenDate.month,
-          mrGreenDate.day,
-          mrGreenDate.year
-        ].join("/");
-        let date = moment(dateString, "MM/DD/YY");
-
-        let newPickup = {
-          Calender: "Custom",
-          PickupDate: date,
-          GreenBin: false,
-          Garbage: false,
-          Recycling: false,
-          MrGreen: true
-        };
-
-        nextPickups = this.addNewPickup(newPickup, nextPickups);
-
-      });
-
-      // Send socket notification to frontend
-      this.sendSocketNotification(
-        "MMM-MYWASTEPICKUP-RESPONSE" + payload.identifier,
-        nextPickups
+                  // Send socket notification to frontend
+                  this.sendSocketNotification(
+                    "MMM-MYWASTEPICKUP-RESPONSE" + payload.identifier,
+                    nextPickups
+                  );
+                }
+              );
+            }
+          );
+        }
       );
     });
   },
@@ -215,12 +194,9 @@ module.exports = NodeHelper.create({
       }
     });
 
-    if (
-      isNewDate
-    ) {
+    if (isNewDate) {
       nextPickups.push(newPickup);
     }
-
 
     return this.cleanUpNextPickups(nextPickups);
   },
