@@ -229,7 +229,7 @@ module.exports = NodeHelper.create({
 
       osmosis
         .get(wintiUrl)
-        .find(".tb.row")
+        .find(".theRow .tb .tr")
         .set({
           date: "a:first"
         })
