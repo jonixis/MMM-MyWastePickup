@@ -2,7 +2,7 @@ Module.register("MMM-MyWastePickup", {
   defaults: {
     collectionCalendar: "Tuesday1",
     weeksToDisplay: 2,
-    limitTo: 99
+    limitTo: 99,
   },
 
   validCollectionCalendars: [
@@ -15,22 +15,22 @@ Module.register("MMM-MyWastePickup", {
     "Thursday2",
     "Friday1",
     "Friday2",
-    "Custom"
+    "Custom",
   ],
 
   germanLabels: {
     garbage: "Kehricht",
     compost: "Grüntour",
     recycle: "Papier/Karton",
-    mr_green: "Mr. Green"
+    mr_green: "Mr. Green",
   },
 
   // Define required styles.
-  getStyles: function() {
+  getStyles: function () {
     return ["MMM-MyWastePickup.css"];
   },
 
-  start: function() {
+  start: function () {
     Log.info("Starting module: " + this.name);
 
     this.nextPickups = [];
@@ -40,23 +40,23 @@ Module.register("MMM-MyWastePickup", {
     this.timer = null;
   },
 
-  getPickups: function() {
+  getPickups: function () {
     clearTimeout(this.timer);
     this.timer = null;
 
     this.sendSocketNotification("MMM-MYWASTEPICKUP-GET", {
       ...this.config,
-      identifier: this.identifier
+      identifier: this.identifier,
     });
 
     //set alarm to check again tomorrow
     var self = this;
-    this.timer = setTimeout(function() {
+    this.timer = setTimeout(function () {
       self.getPickups();
-    }, 24 * 60 * 60 * 1000); // udpate once a day
+    }, 60 * 60 * 1000); // udpate once every hour
   },
 
-  socketNotificationReceived: function(notification, payload) {
+  socketNotificationReceived: function (notification, payload) {
     if (
       notification == "MMM-MYWASTEPICKUP-RESPONSE" + this.identifier &&
       payload.length > 0
@@ -67,7 +67,7 @@ Module.register("MMM-MyWastePickup", {
     }
   },
 
-  svgIconFactory: function(glyph) {
+  svgIconFactory: function (glyph) {
     var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.setAttributeNS(null, "class", "waste-pickup-icon " + glyph);
     var use = document.createElementNS("http://www.w3.org/2000/svg", "use");
@@ -81,7 +81,7 @@ Module.register("MMM-MyWastePickup", {
     return svg;
   },
 
-  createIconLegendEntry: function(description, iconName) {
+  createIconLegendEntry: function (description, iconName) {
     var legendContainer = document.createElement("div");
     legendContainer.classList.add("legend-container");
 
@@ -98,7 +98,7 @@ Module.register("MMM-MyWastePickup", {
     return legendContainer;
   },
 
-  getDom: function() {
+  getDom: function () {
     var wrapper = document.createElement("div");
 
     if (this.nextPickups.length == 0) {
@@ -129,17 +129,9 @@ Module.register("MMM-MyWastePickup", {
       var pickUpDate = moment(pickup.PickupDate);
       if (today.isSame(pickUpDate)) {
         dateContainer.innerHTML = this.translate("TODAY");
-      } else if (
-        moment(today)
-          .add(1, "days")
-          .isSame(pickUpDate)
-      ) {
+      } else if (moment(today).add(1, "days").isSame(pickUpDate)) {
         dateContainer.innerHTML = this.translate("TOMORROW");
-      } else if (
-        moment(today)
-          .add(7, "days")
-          .isAfter(pickUpDate)
-      ) {
+      } else if (moment(today).add(7, "days").isAfter(pickUpDate)) {
         dateContainer.innerHTML = pickUpDate.format("dddd");
       } else {
         dateContainer.innerHTML = pickUpDate.format("MMMM D");
@@ -175,14 +167,22 @@ Module.register("MMM-MyWastePickup", {
     var legendWrapperUpper = document.createElement("div");
     legendWrapperUpper.classList.add("legend-wrapper");
     legendWrapperUpper.classList.add("light");
-    legendWrapperUpper.appendChild(this.createIconLegendEntry(this.germanLabels.garbage, "garbage"));
-    legendWrapperUpper.appendChild(this.createIconLegendEntry(this.germanLabels.compost, "compost"));
+    legendWrapperUpper.appendChild(
+      this.createIconLegendEntry(this.germanLabels.garbage, "garbage")
+    );
+    legendWrapperUpper.appendChild(
+      this.createIconLegendEntry(this.germanLabels.compost, "compost")
+    );
 
     var legendWrapperLower = document.createElement("div");
     legendWrapperLower.classList.add("legend-wrapper");
     legendWrapperLower.classList.add("light");
-    legendWrapperLower.appendChild(this.createIconLegendEntry(this.germanLabels.recycle, "recycle"));
-    legendWrapperLower.appendChild(this.createIconLegendEntry(this.germanLabels.mr_green, "mr_green"));
+    legendWrapperLower.appendChild(
+      this.createIconLegendEntry(this.germanLabels.recycle, "recycle")
+    );
+    legendWrapperLower.appendChild(
+      this.createIconLegendEntry(this.germanLabels.mr_green, "mr_green")
+    );
 
     wrapper.appendChild(legendWrapperUpper);
     wrapper.appendChild(legendWrapperLower);
@@ -190,41 +190,51 @@ Module.register("MMM-MyWastePickup", {
     return wrapper;
   },
 
-  handleTelegramNotifications: function(pickups) {
-    const today = moment().startOf('day');
+  handleTelegramNotifications: function (pickups) {
+    const today = moment().startOf("day");
 
-    pickups.forEach(pickup => {
+    pickups.forEach((pickup) => {
       const currentHour = moment().hour();
       // check if it is one day before a pickup
-      if (moment(today).hour(currentHour).isSame(moment(pickup.PickupDate).subtract(1, 'days').hour(20), 'hour')) {
-        this.sendTelegramMessage('*Morn:*', pickup);
+      if (
+        moment(today)
+          .hour(currentHour)
+          .isSame(
+            moment(pickup.PickupDate).subtract(1, "days").hour(20),
+            "hour"
+          )
+      ) {
+        this.sendTelegramMessage("*Morn:*", pickup);
       }
       // check if pickup is today
-      else if (moment(today).hour(currentHour).isSame(moment(pickup.PickupDate).hour(4), 'hour')) {
-        this.sendTelegramMessage('‼️*Hüt:*‼️', pickup);
+      else if (
+        moment(today)
+          .hour(currentHour)
+          .isSame(moment(pickup.PickupDate).hour(4), "hour")
+      ) {
+        this.sendTelegramMessage("‼️*Hüt:*‼️", pickup);
       }
     });
-
   },
 
-  sendTelegramMessage: function(customText, pickup) {
-    let message = '♻️🚮 WG-Abfall Reminder 🚮♻️\n\n';
+  sendTelegramMessage: function (customText, pickup) {
+    let message = "♻️🚮 WG-Abfall Reminder 🚮♻️\n\n";
 
-    message += customText + '\n';
+    message += customText + "\n";
 
     if (pickup.Garbage) {
-      message += '- `' + this.germanLabels.garbage + '`\n';
+      message += "- `" + this.germanLabels.garbage + "`\n";
     }
     if (pickup.GreenBin) {
-      message += '- `' + this.germanLabels.compost + '`\n';
+      message += "- `" + this.germanLabels.compost + "`\n";
     }
     if (pickup.Recycling) {
-      message += '- `' + this.germanLabels.recycle + '`\n';
+      message += "- `" + this.germanLabels.recycle + "`\n";
     }
     if (pickup.MrGreen) {
-      message += '- `' + this.germanLabels.mr_green + '`\n';
+      message += "- `" + this.germanLabels.mr_green + "`\n";
     }
 
-    this.sendNotification('TELBOT_TELL_GROUP', message);
-  }
+    this.sendNotification("TELBOT_TELL_GROUP", message);
+  },
 });
