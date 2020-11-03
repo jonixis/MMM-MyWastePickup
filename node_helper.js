@@ -125,21 +125,21 @@ module.exports = NodeHelper.create({
 							this.fetchNextMrGreenPickups(payload.mrGreenCalendarUrl).then(
 								res => {
 									// Remove days in past
-									res = res.filter(mrGreenDate => {
-										let dateString = [
-											mrGreenDate.month,
-											mrGreenDate.day,
-											mrGreenDate.year
-										].join("/");
-										let date = moment(dateString, "MM/DD/YY");
+									// res = res.filter(mrGreenDate => {
+									// 	let dateString = [
+									// 		mrGreenDate.month,
+									// 		mrGreenDate.day,
+									// 		mrGreenDate.year
+									// 	].join("/");
+									// 	let date = moment(dateString, "MM/DD/YY");
 
-										return date.isAfter(
-											moment()
-												.startOf("day")
-												.add(1, "days"),
-											"day"
-										);
-									});
+									// 	return date.isAfter(
+									// 		moment()
+									// 			.startOf("day")
+									// 			.add(1, "days"),
+									// 		"day"
+									// 	);
+									// });
 
 									// Remove redundant dates
 									res.splice(payload.weeksToDisplay, res.length);
