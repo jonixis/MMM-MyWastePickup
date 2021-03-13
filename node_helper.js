@@ -252,9 +252,10 @@ module.exports = NodeHelper.create({
 						month: "",
 						year: ""
 					};
-					pickupDate.day = data.date.substring(4, 6);
-					pickupDate.month = this.germanMonths.get(data.date.substring(8, 11));
-					pickupDate.year = data.date.substring(15, 17);
+					let fixedString = decodeURIComponent(escape(data.date));
+					pickupDate.day = fixedString.substring(4, 6);
+					pickupDate.month = this.germanMonths.get(fixedString.substring(8, 11));
+					pickupDate.year = fixedString.substring(15, 17);
 					wintiPickupDates.push(pickupDate);
 				})
 				.error(err => reject(err))
