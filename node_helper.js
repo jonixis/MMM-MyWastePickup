@@ -207,6 +207,7 @@ module.exports = NodeHelper.create({
 			let mrGreenPickupDates = [];
 			let options = {
 				'method': 'POST',
+				'rejectUnauthorized': false,
 				'url': mrGreenCalendarUrl,
 				formData: {
 					'action': 'get_dates_by_zip',
