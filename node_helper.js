@@ -209,29 +209,41 @@ module.exports = NodeHelper.create({
 				'method': 'POST',
 				'rejectUnauthorized': false,
 				'url': mrGreenCalendarUrl,
+        'headers': {
+          'X-Requested-With': 'XMLHttpRequest'
+        },
 				formData: {
-					'action': 'get_dates_by_zip',
-					'zipcode': '3156'
+					'zip': '8400',
+					'type': 'Biweekly'
 				}
 			};
 			request(options, (error, response) => {
 				if (error) throw new Error(error);
 
-				osmosis
-					.parse(response.body)
-					.find("#get-package-date")
-					.set({
-						day: "span.day",
-						month: "span.month",
-						year: "span.year"
-					})
-					.data(data => {
-						data.month = this.germanMonths.get(data.month.substring(0, 3));
-						data.year = data.year.substring(2);
-						mrGreenPickupDates.push(data);
-					})
-					.error(err => reject(err))
-					.done(() => resolve(mrGreenPickupDates));
+        const responseObj = JSON.parse(response.body);
+
+        let dates;
+        for (const key in responseObj.dates_data) {
+          const allDates = responseObj.dates_data[key];
+          if (allDates.zip === '8400 Grün') {
+            dates = allDates.date;
+            break;
+          }
+        }
+
+        dates.forEach(dateString => {
+					let pickupDate = {
+						day: "",
+						month: "",
+						year: ""
+					};
+          pickupDate.day = dateString.substring(0, 2).replace(" ", "0");
+          pickupDate.month = this.germanMonths.get(dateString.substring(4, 7));
+          pickupDate.year = dateString.slice(-2);
+          mrGreenPickupDates.push(pickupDate);
+        });
+
+        resolve(mrGreenPickupDates);
 			});
 
 		});
